@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#FF007F" />
+  <title>Will You Date Me?</title>
+  <style>
+    :root {
+      --cream: #FFFDF9;
+      --ink: #000000;
+      --hot-pink: #FF007F;
+      --coral: #FF6B6B;
+      --butter: #FFE66D;
+      --mint: #7DFFB2;
+      --sky: #7DD3FC;
+      --shadow: 0.45rem 0.45rem 0 var(--ink);
+      --border: 0.2rem solid var(--ink);
+      --radius: 0.55rem;
+      --yes-scale: 1;
+      --yes-font: clamp(1.2rem, 4vw, 2.05rem);
+      --yes-pad-y: clamp(1rem, 2.5vw, 1.35rem);
+      --yes-pad-x: clamp(1.3rem, 4vw, 2.5rem);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      overflow-x: hidden;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Impact, Haettenschweiler, "Arial Black", "Montserrat", system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+      background:
+        radial-gradient(circle at 10% 10%, var(--butter) 0 5.5rem, transparent 5.65rem),
+        radial-gradient(circle at 90% 14%, var(--sky) 0 4.5rem, transparent 4.65rem),
+        linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px),
+        var(--cream);
+      background-size: auto, auto, 1.15rem 1.15rem, 1.15rem 1.15rem, auto;
+    }
+
+    button {
+      font: inherit;
+      color: var(--ink);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 0.3rem dashed var(--hot-pink);
+      outline-offset: 0.28rem;
+    }
+
+    .app {
+      width: min(100%, 68rem);
+      min-height: min(48rem, calc(100dvh - 2rem));
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .screen {
+      width: 100%;
+      display: grid;
+      place-items: center;
+      transition: opacity 420ms ease, transform 420ms ease;
+    }
+
+    .screen[hidden] { display: none; }
+
+    .proposal-card {
+      width: min(100%, 58rem);
+      border: clamp(0.18rem, 0.6vw, 0.32rem) solid var(--ink);
+      border-radius: clamp(0.45rem, 1.4vw, 0.85rem);
+      box-shadow: clamp(0.45rem, 1.4vw, 0.85rem) clamp(0.45rem, 1.4vw, 0.85rem) 0 var(--ink);
+      background: var(--cream);
+      padding: clamp(1rem, 4vw, 2.5rem);
+      display: grid;
+      gap: clamp(1rem, 3vw, 1.75rem);
+      position: relative;
+      isolation: isolate;
+    }
+
+    .proposal-card::before {
+      content: "";
+      position: absolute;
+      inset: clamp(0.45rem, 1vw, 0.7rem);
+      background: linear-gradient(135deg, rgba(255, 0, 127, 0.12), rgba(255, 107, 107, 0.08));
+      border: 0.13rem dashed var(--ink);
+      z-index: -1;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.55rem;
+      padding: 0.45rem 0.85rem;
+      border: var(--border);
+      box-shadow: 0.28rem 0.28rem 0 var(--ink);
+      border-radius: 999px;
+      background: var(--mint);
+      font-size: clamp(0.8rem, 2.5vw, 1rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .badge:nth-child(2) { background: var(--butter); }
+    .badge:nth-child(3) { background: var(--sky); }
+
+    h1,
+    .success-title {
+      margin: 0;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: clamp(0.02em, 0.5vw, 0.06em);
+      line-height: 0.88;
+      text-shadow: 0.12em 0.12em 0 var(--coral);
+      overflow-wrap: anywhere;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 13vw, 8.5rem);
+      max-width: 11ch;
+      justify-self: center;
+    }
+
+    .subtitle {
+      margin: 0 auto;
+      max-width: 48ch;
+      text-align: center;
+      font-family: "Arial Black", Impact, system-ui, sans-serif;
+      font-size: clamp(1rem, 3.4vw, 1.35rem);
+      line-height: 1.25;
+      background: var(--butter);
+      border: var(--border);
+      box-shadow: 0.32rem 0.32rem 0 var(--ink);
+      padding: 0.8rem 1rem;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(0.7rem, 2vw, 1rem);
+      align-items: stretch;
+    }
+
+    .photo-card {
+      min-height: clamp(7rem, 18vw, 12rem);
+      aspect-ratio: 1 / 1;
+      border: var(--border);
+      box-shadow: 0.35rem 0.35rem 0 var(--ink);
+      background: var(--hot-pink);
+      padding: 0.5rem;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      transform: rotate(-1.5deg);
+    }
+
+    .photo-card:nth-child(2) {
+      background: var(--sky);
+      transform: rotate(1.5deg);
+    }
+
+    .photo-card:nth-child(3) {
+      background: var(--butter);
+      transform: rotate(-0.7deg);
+    }
+
+    .photo-card:nth-child(4) {
+      background: var(--mint);
+      transform: rotate(1deg);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border: 0.14rem solid var(--ink);
+      background: var(--cream);
+      filter: saturate(1.08) contrast(1.04);
+    }
+
+    .actions-wrap {
+      min-height: clamp(5.5rem, 16vw, 9rem);
+      display: grid;
+      place-items: center;
+      overflow: visible;
+    }
+
+    .actions {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(0.85rem, 3vw, 1.35rem);
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+
+    .btn {
+      min-width: min(13rem, 100%);
+      min-height: 3.5rem;
+      padding: 1rem 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.055em;
+      transition: transform 250ms ease, padding 250ms ease, font-size 250ms ease, background-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .btn:active {
+      transform: translate(0.22rem, 0.22rem);
+      box-shadow: 0.18rem 0.18rem 0 var(--ink);
+    }
+
+    .yes-btn {
+      position: relative;
+      z-index: 5;
+      background: var(--hot-pink);
+      color: var(--cream);
+      padding: var(--yes-pad-y) var(--yes-pad-x);
+      font-size: var(--yes-font);
+      transform: scale(var(--yes-scale));
+      transform-origin: center;
+    }
+
+    .yes-btn:hover { background: #ff2b93; }
+
+    .no-btn {
+      background: var(--cream);
+      font-size: clamp(1rem, 3.2vw, 1.45rem);
+    }
+
+    .no-btn:hover { background: var(--coral); }
+
+    .meter {
+      width: min(100%, 28rem);
+      justify-self: center;
+      display: grid;
+      gap: 0.35rem;
+      font-family: "Arial Black", Impact, system-ui, sans-serif;
+      font-size: clamp(0.78rem, 2.5vw, 0.95rem);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .meter-track {
+      height: 1.05rem;
+      border: 0.15rem solid var(--ink);
+      background: var(--cream);
+      box-shadow: 0.25rem 0.25rem 0 var(--ink);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      width: 0%;
+      height: 100%;
+      background: repeating-linear-gradient(45deg, var(--hot-pink) 0 0.7rem, var(--butter) 0.7rem 1.4rem);
+      transition: width 260ms ease;
+    }
+
+    .yes-btn.takeover {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      width: 100vw;
+      height: 100dvh;
+      border-radius: 0;
+      border-width: 0.28rem;
+      box-shadow: none;
+      padding: clamp(2rem, 7vw, 5rem);
+      font-size: clamp(3.1rem, 18vw, 12rem);
+      line-height: 0.9;
+      white-space: normal;
+      transform: none;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .takeover::after {
+      content: "TAP YES 💘";
+      display: block;
+      position: absolute;
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(92vw, 28rem);
+      background: var(--butter);
+      color: var(--ink);
+      border: var(--border);
+      box-shadow: 0.35rem 0.35rem 0 var(--ink);
+      padding: 0.75rem 1rem;
+      font-size: clamp(1rem, 4vw, 1.8rem);
+      line-height: 1;
+    }
+
+    .success-card {
+      width: min(100%, 58rem);
+      min-height: min(42rem, calc(100dvh - 2rem));
+      border: clamp(0.18rem, 0.6vw, 0.32rem) solid var(--ink);
+      box-shadow: clamp(0.45rem, 1.4vw, 0.9rem) clamp(0.45rem, 1.4vw, 0.9rem) 0 var(--ink);
+      background: var(--hot-pink);
+      padding: clamp(1rem, 4vw, 2.2rem);
+      display: grid;
+      gap: clamp(1rem, 3vw, 1.5rem);
+      align-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .success-card::before,
+    .success-card::after {
+      content: "";
+      position: absolute;
+      width: clamp(5rem, 18vw, 11rem);
+      aspect-ratio: 1;
+      background: var(--butter);
+      border: var(--border);
+      box-shadow: 0.35rem 0.35rem 0 var(--ink);
+      transform: rotate(12deg);
+      z-index: 0;
+    }
+
+    .success-card::before { top: -2rem; left: -2rem; }
+    .success-card::after { bottom: -2rem; right: -2rem; background: var(--sky); transform: rotate(-12deg); }
+
+    .success-card > * { position: relative; z-index: 1; }
+
+    .success-title {
+      color: var(--cream);
+      font-size: clamp(2.15rem, 10.5vw, 6.8rem);
+      text-shadow: 0.09em 0.09em 0 var(--ink);
+      max-width: 13ch;
+      justify-self: center;
+    }
+
+    .date-ticket {
+      justify-self: center;
+      width: min(100%, 34rem);
+      display: grid;
+      gap: 0.45rem;
+      background: var(--cream);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: clamp(0.9rem, 3vw, 1.3rem);
+      text-align: center;
+      text-transform: uppercase;
+      font-family: "Arial Black", Impact, system-ui, sans-serif;
+    }
+
+    .date-ticket span:first-child {
+      font-size: clamp(0.85rem, 3vw, 1rem);
+      letter-spacing: 0.08em;
+    }
+
+    .date-ticket span:last-child {
+      font-size: clamp(1.25rem, 5vw, 2.2rem);
+      line-height: 1;
+      color: var(--hot-pink);
+    }
+
+    .success-photos {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      width: min(100%, 46rem);
+      justify-self: center;
+    }
+
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .confetti i {
+      position: absolute;
+      width: 0.9rem;
+      height: 1.4rem;
+      border: 0.12rem solid var(--ink);
+      background: var(--butter);
+      box-shadow: 0.12rem 0.12rem 0 var(--ink);
+      top: -10vh;
+      animation: fall 1200ms linear forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(120vh) rotate(720deg); }
+    }
+
+    .fade-out {
+      opacity: 0;
+      transform: translateY(-1rem) scale(0.98);
+      pointer-events: none;
+    }
+
+    .fade-in {
+      animation: popIn 520ms cubic-bezier(.2, .9, .2, 1.15) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(1rem) scale(0.94); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 0.85rem; }
+
+      .app { min-height: calc(100dvh - 1.7rem); }
+
+      .proposal-card,
+      .success-card {
+        min-height: calc(100dvh - 1.7rem);
+      }
+
+      .photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photo-card {
+        min-height: 6.4rem;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+      }
+
+      .btn {
+        width: 100%;
+        min-height: 3.7rem;
+      }
+
+      .actions-wrap {
+        min-height: 10rem;
+      }
+
+      .yes-btn:not(.takeover) {
+        transform: scale(var(--yes-scale));
+      }
+    }
+
+    @media (max-width: 410px) {
+      .badge-row { gap: 0.45rem; }
+      .badge { width: 100%; }
+      .photo-card { min-height: 5.5rem; }
+      .subtitle { padding: 0.65rem 0.75rem; }
+      .success-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-live="polite">
+    <section class="screen" id="proposalScreen" aria-labelledby="questionTitle">
+      <article class="proposal-card">
+        <div class="badge-row" aria-label="Romantic notes">
+          <span class="badge">Neobrutal crush alert</span>
+          <span class="badge">Very serious question</span>
+          <span class="badge">Choose wisely</span>
+        </div>
+
+        <h1 id="questionTitle">Will you date me?</h1>
+
+        <p class="subtitle">Warning: pressing “No” makes “Yes” stronger, louder, and dangerously romantic.</p>
+
+        <div class="photo-grid" aria-label="Cute personal photo collage">
+          <div class="photo-card">
+            <img src="assets/photos/photo-1-laptop.jpg" alt="A candid laptop mirror photo together" loading="lazy" decoding="async" style="object-position: center 58%;" />
+          </div>
+
+          <div class="photo-card">
+            <img src="assets/photos/photo-2-dog-selfie.jpg" alt="A smiling selfie with a cute dog" loading="lazy" decoding="async" style="object-position: center center;" />
+          </div>
+
+          <div class="photo-card">
+            <img src="assets/photos/photo-3-bath-time.jpg" alt="A funny dog bath time photo" loading="lazy" decoding="async" style="object-position: center 42%;" />
+          </div>
+
+          <div class="photo-card">
+            <img src="assets/photos/photo-4-puppy-eyes.jpg" alt="A close-up photo of a dog with puppy eyes" loading="lazy" decoding="async" style="object-position: center 36%;" />
+          </div>
+        </div>
+
+        <div class="actions-wrap">
+          <div class="actions" id="actions">
+            <button class="btn yes-btn" id="yesBtn" type="button" aria-label="Yes, I will date you">Yes</button>
+            <button class="btn no-btn" id="noBtn" type="button" aria-label="No, make the Yes button bigger">No</button>
+          </div>
+        </div>
+
+        <div class="meter" aria-hidden="true">
+          <span id="meterText">YES energy: charging</span>
+          <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="screen" id="successScreen" aria-labelledby="successTitle" hidden>
+      <article class="success-card">
+        <h2 class="success-title" id="successTitle">YAYYY, monday at 7 Valletta it is!!!!</h2>
+
+        <div class="date-ticket" aria-label="Date details">
+          <span>Official date plan unlocked</span>
+          <span>Monday · 7 PM · Valletta</span>
+        </div>
+
+        <div class="photo-grid success-photos" aria-label="Celebration photo collage">
+          <div class="photo-card">
+            <img src="assets/photos/photo-4-puppy-eyes.jpg" alt="A close-up photo of a dog with puppy eyes" loading="lazy" decoding="async" style="object-position: center 36%;" />
+          </div>
+
+          <div class="photo-card">
+            <img src="assets/photos/photo-2-dog-selfie.jpg" alt="A smiling selfie with a cute dog" loading="lazy" decoding="async" style="object-position: center center;" />
+          </div>
+
+          <div class="photo-card">
+            <img src="assets/photos/photo-3-bath-time.jpg" alt="A funny dog bath time photo" loading="lazy" decoding="async" style="object-position: center 42%;" />
+          </div>
+
+          <div class="photo-card">
+            <img src="assets/photos/photo-1-laptop.jpg" alt="A candid laptop mirror photo together" loading="lazy" decoding="async" style="object-position: center 58%;" />
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    (() => {
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      const proposalScreen = document.getElementById('proposalScreen');
+      const successScreen = document.getElementById('successScreen');
+      const meterFill = document.getElementById('meterFill');
+      const meterText = document.getElementById('meterText');
+      const confetti = document.getElementById('confetti');
+
+      const maxClicksBeforeTakeover = 6;
+      let noClicks = 0;
+      let successShown = false;
+
+      const noButtonCopy = [
+        'No',
+        'Are you sure?',
+        'Think again',
+        'Really?',
+        'Last chance',
+        'Too late 😈'
+      ];
+
+      function updateYesPower() {
+        const progress = Math.min(noClicks / maxClicksBeforeTakeover, 1);
+        const scale = Math.min(1 + noClicks * 0.34, 2.9);
+        const fontRem = Math.min(1.45 + noClicks * 0.38, 3.65);
+        const padY = Math.min(1 + noClicks * 0.22, 2.5);
+        const padX = Math.min(1.4 + noClicks * 0.55, 4.8);
+
+        document.documentElement.style.setProperty('--yes-scale', scale.toFixed(2));
+        document.documentElement.style.setProperty('--yes-font', `${fontRem.toFixed(2)}rem`);
+        document.documentElement.style.setProperty('--yes-pad-y', `${padY.toFixed(2)}rem`);
+        document.documentElement.style.setProperty('--yes-pad-x', `${padX.toFixed(2)}rem`);
+
+        meterFill.style.width = `${Math.round(progress * 100)}%`;
+        meterText.textContent = progress >= 1 ? 'YES energy: unavoidable' : `YES energy: ${Math.round(progress * 100)}%`;
+        noBtn.textContent = noButtonCopy[Math.min(noClicks, noButtonCopy.length - 1)];
+
+        if (noClicks >= maxClicksBeforeTakeover) {
+          yesBtn.classList.add('takeover');
+          noBtn.setAttribute('aria-hidden', 'true');
+          noBtn.tabIndex = -1;
+          yesBtn.focus({ preventScroll: true });
+        }
+      }
+
+      function burstConfetti() {
+        confetti.innerHTML = '';
+        const colors = ['#FF007F', '#FF6B6B', '#FFE66D', '#7DFFB2', '#7DD3FC', '#FFFDF9'];
+        const pieces = window.matchMedia('(max-width: 500px)').matches ? 32 : 54;
+
+        for (let i = 0; i < pieces; i += 1) {
+          const piece = document.createElement('i');
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDelay = `${Math.random() * 360}ms`;
+          piece.style.animationDuration = `${900 + Math.random() * 900}ms`;
+          piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+          confetti.appendChild(piece);
+        }
+
+        window.setTimeout(() => {
+          confetti.innerHTML = '';
+        }, 2400);
+      }
+
+      function showSuccess() {
+        if (successShown) return;
+        successShown = true;
+
+        burstConfetti();
+        proposalScreen.classList.add('fade-out');
+
+        window.setTimeout(() => {
+          yesBtn.classList.remove('takeover');
+          proposalScreen.hidden = true;
+          successScreen.hidden = false;
+          successScreen.classList.add('fade-in');
+          successScreen.focus?.({ preventScroll: true });
+        }, 360);
+      }
+
+      noBtn.addEventListener('click', () => {
+        noClicks += 1;
+        updateYesPower();
+      });
+
+      yesBtn.addEventListener('click', showSuccess);
+
+      updateYesPower();
+    })();
+  </script>
+</body>
+</html>
